@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':aj_bridge'
