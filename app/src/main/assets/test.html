@@ -1,0 +1,20 @@
+<html >
+    <body>
+        <p onclick="jsCallNative()">jsCallNative</p>
+        <p id="text">area</p>
+    </body>
+
+    <script>
+        function jsCallNative(){
+        for(var name in window.callNative){
+           console.log(name);
+        }
+            console.log(typeof window.callNative.call);
+            //window.callNative = function(){};
+            //console.log("jsCallNative");
+            document.getElementById("text").innerHTML = "called";
+            window.callNative.call();
+
+        }
+    </script>
+</html>
