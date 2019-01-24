@@ -6,15 +6,11 @@
 
     <script>
         function jsCallNative(){
-        for(var name in window.callNative){
-           console.log(name);
-        }
             console.log(typeof window.callNative.call);
-            //window.callNative = function(){};
-            //console.log("jsCallNative");
             document.getElementById("text").innerHTML = "called";
-            window.callNative.call();
-
+            window.callNative("method","{'name':'张三','gender':'male'}", function(){
+                console.log("callback");
+            });
         }
     </script>
 </html>
