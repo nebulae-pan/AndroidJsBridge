@@ -7,6 +7,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import com.nebula.module.androidjsbridge.InjectWebViewClient;
+import com.nebula.module.androidjsbridge.JsParam;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,15 +17,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         WebView webView = findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new InjectWebViewClient());
-        webView.setWebChromeClient(new WebChromeClient(){
+        webView.setWebViewClient(new InjectWebViewClient(webView));
+
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
                 System.out.println("webView:" + consoleMessage.message());
                 return super.onConsoleMessage(consoleMessage);
             }
         });
-//        webView.loadUrl("javascript:window.callNative.call = function(){};");
         webView.loadUrl("file:///android_asset/test.html");
+    }
+
+    public void scanCode(@JsParam("name") String name) {
+
     }
 }
