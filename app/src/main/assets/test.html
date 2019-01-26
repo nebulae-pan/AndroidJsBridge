@@ -8,7 +8,7 @@
         function jsCallNative(){
             console.log(typeof window.callNative.call);
             document.getElementById("text").innerHTML = "called";
-            window.callNative("method","{'name':'张三','gender':'male'}", function(){
+            window.callNative("nativeScan",JSON.parse('{"name":"张三","gender":"male"}'), function(){
                 console.log("callback");
             });
         }
