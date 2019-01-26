@@ -5,8 +5,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class InjectWebViewClient extends WebViewClient {
-    public InjectWebViewClient(WebView webView){
-        webView.addJavascriptInterface(new JsInvokeHandler(),"native");
+    public InjectWebViewClient(WebView webView, Object handleTarget){
+        webView.addJavascriptInterface(new JsInvokeHandler(handleTarget),"native");
     }
     @Override
     public void onPageFinished(WebView view, String url) {
