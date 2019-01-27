@@ -18,6 +18,7 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class JsInvokeHandler {
+    private static final String TAG = "A-JBridge";
     private Map<String, Pair<Method, List<String>>> mNativeDisposeSet = new HashMap<>();
     private Object mTarget;
 
@@ -51,13 +52,18 @@ public class JsInvokeHandler {
         List<String> paramKeyList = pair.second;
         List<String> paramList = new ArrayList<>();
         try {
-            Log.e("tag", params);
-            JSONObject j = new JSONObject("{\"name\":\"zhang\",\"gender\":\"male\"}");
             JSONObject jsonObject = new JSONObject(params);
             for (String key : paramKeyList) {
                 paramList.add(jsonObject.getString(key));
             }
-            nativeCallee.invoke(mTarget, paramList.toArray());
+            Object result = nativeCallee.invoke(mTarget, paramList.toArray());
+            if (!(result instanceof NativeResult)) {
+                Log.e(TAG, String.format("error: native callee method %s's return type is %s.It's must be %s", nativeCallee.getName(), result.getClass(), NativeResult.class));
+                return;
+            }
+            NativeResult nativeResult = (NativeResult) result;
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

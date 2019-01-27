@@ -11,6 +11,7 @@ public class InjectWebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
+        //injected javascript code
         String injectString = "window.callNative = {};\n" +
                 "window.nativeCall = {};\n" +
                 "\n" +
