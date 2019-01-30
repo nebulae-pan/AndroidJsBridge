@@ -10,6 +10,10 @@ import android.webkit.WebView;
 import com.nebula.module.androidjsbridge.InjectWebViewClient;
 import com.nebula.module.androidjsbridge.JsInvoke;
 import com.nebula.module.androidjsbridge.JsParam;
+import com.nebula.module.androidjsbridge.NativeResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,7 +36,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JsInvoke("nativeScan")
-    public void scanCode(@JsParam("name") String name) {
+    public NativeResult scanCode(@JsParam("name") String name) {
         Log.e("tag", "name = " + name);
+        JsBuilder jsBuilder = new JsBuilder();
+        jsBuilder.addParam("grade","90")
+                .addParam("location","xi'an");
+        return new NativeResult(jsBuilder.string());
+    }
+
+    public static class JsBuilder{
+        private JSONObject mJsonObject = new JSONObject();
+        public JsBuilder(){}
+
+        public JsBuilder addParam(String key, String value){
+            try {
+                mJsonObject.put(key, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return this;
+        }
+
+        public String string(){
+            return mJsonObject.toString();
+        }
     }
 }

@@ -6,9 +6,10 @@
 
     <script>
         function jsCallNative(){
-            console.log(typeof window.callNative.call);
             document.getElementById("text").innerHTML = "called";
-            window.callNative("nativeScan",JSON.parse('{"name":"张三","gender":"male"}'), function(){
+            window.callNative("nativeScan",JSON.parse('{"name":"Zhang San","gender":"male"}'), function(params){
+                console.log(JSON.stringify(params));
+                console.log(params.grade);
                 console.log("callback");
             });
         }
