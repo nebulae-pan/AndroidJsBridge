@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * deal with all js invoke action and dispatch those action to correspond nativeCallee
+ */
 @SuppressWarnings("unused")
 public class JsInvokeHandler {
     private static final String TAG = "A-JBridge";
@@ -43,11 +46,12 @@ public class JsInvokeHandler {
                         }
                     }
                 }
+                //retrieve all annotation, maintain the decorated methods and parameters
                 mNativeDisposeSet.put(methodAnnotation.value(), new Pair<>(method, paramKeyList));
             }
         }
         for (String key : mNativeDisposeSet.keySet()) {
-            Log.e("jsHandleMethod", key + ":" + Arrays.toString(mNativeDisposeSet.get(key).second.toArray()));
+            Log.d("jsHandleMethod", key + ":" + Arrays.toString(mNativeDisposeSet.get(key).second.toArray()));
         }
     }
 
@@ -63,27 +67,34 @@ public class JsInvokeHandler {
                 paramList.add(jsonObject.getString(key));
             }
             Object result = nativeCallee.invoke(mTarget, paramList.toArray());
-            if (!(result instanceof NativeResult)) {
-                Log.e(TAG, String.format("error: native callee method %s's return type is %s.It's must be %s", nativeCallee.getName(), result == null ? "void" : result.getClass(), NativeResult.class));
+            if (result != null && !(result instanceof NativeResult)) {
+                Log.e(TAG, String.format("error: native callee method %s's return type is %s.It's must be %s or void", nativeCallee.getName(), result == null ? "void" : result.getClass(), NativeResult.class));
                 return;
             }
+            if(result == null)
+                return;
             NativeResult nativeResult = (NativeResult) result;
+            //javascript callback called
+            String jsCmd;
             if (!TextUtils.isEmpty(nativeResult.result())) {
-                final String jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d, \"%s\");", id, nativeResult.result().replaceAll("\"","\\\\\""));
-                Log.e(TAG, "invokeDispatcher: " + jsCmd);
-                mWebView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (Build.VERSION.SDK_INT >= 14) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                mWebView.evaluateJavascript(jsCmd, null);
-                            }
-                        } else {
-                            mWebView.loadUrl("javascript:" + jsCmd);
-                        }
-                    }
-                });
+                jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d, \"%s\");", id, nativeResult.result().replaceAll("\"","\\\\\""));
+            }else {
+                jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d);", id);
             }
+            //post execute to main thread
+            final String cmd = jsCmd;
+            mWebView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (Build.VERSION.SDK_INT >= 14) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            mWebView.evaluateJavascript(cmd, null);
+                        }
+                    } else {
+                        mWebView.loadUrl("javascript:" + cmd);
+                    }
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -91,6 +102,5 @@ public class JsInvokeHandler {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-        Log.e("tag:", method + ":" + params);
     }
 }

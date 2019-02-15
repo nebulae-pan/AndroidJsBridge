@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.widget.TextView;
 
 import com.nebula.module.androidjsbridge.InjectWebViewClient;
 import com.nebula.module.androidjsbridge.JsInvoke;
@@ -16,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
+    private TextView mText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +35,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         webView.loadUrl("file:///android_asset/test.html");
+        mText = findViewById(R.id.text);
     }
 
-    @JsInvoke("nativeScan")
-    public NativeResult scanCode(@JsParam("name") String name) {
-        Log.e("tag", "name = " + name);
+    @JsInvoke("nativeMethod1")
+    public void method1(@JsParam("name") String name,
+                        @JsParam("gender") String gender) {
+        mText.setText(String.format("name = \"%s\", gender = \"%s\"", name, gender));
+    }
+
+    @JsInvoke("nativeMethod2")
+    public NativeResult method2(@JsParam("name") String name) {
+        mText.setText(String.format("name = \"%s\"", name));
         JsBuilder jsBuilder = new JsBuilder();
         jsBuilder.addParam("grade","90")
                 .addParam("location","xi'an");

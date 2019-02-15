@@ -1,10 +1,12 @@
 package com.nebula.module.androidjsbridge;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class InjectWebViewClient extends WebViewClient {
+    @SuppressLint("AddJavascriptInterface")
     public InjectWebViewClient(WebView webView, Object handleTarget){
         webView.addJavascriptInterface(new JsInvokeHandler(webView, handleTarget),"native");
     }
@@ -58,7 +60,7 @@ public class InjectWebViewClient extends WebViewClient {
     }
 
     @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        super.onPageStarted(view, url, favicon);
+    public void onPageStarted(WebView webView, String url, Bitmap favicon) {
+        super.onPageStarted(webView, url, favicon);
     }
 }
