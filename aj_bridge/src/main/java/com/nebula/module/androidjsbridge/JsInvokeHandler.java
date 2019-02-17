@@ -41,8 +41,20 @@ public class JsInvokeHandler {
                 Annotation[][] paramAnnotations = method.getParameterAnnotations();
                 for (Annotation[] annotations : paramAnnotations) {
                     for (Annotation annotation : annotations) {
+                        if (annotation.annotationType().equals(JsParamValue.class)) {
+                            if (paramKeyList == null) {
+                                throw new RuntimeException();
+                            }
+                            paramKeyList.add(((JsParamValue) annotation).value());
+                        }
                         if (annotation.annotationType().equals(JsParam.class)) {
-                            paramKeyList.add(((JsParam) annotation).value());
+                            if (paramKeyList == null) {
+                                throw new RuntimeException();
+                            }
+                            if (paramKeyList.size() > 0) {
+                                throw new RuntimeException();
+                            }
+                            paramKeyList = null;
                         }
                     }
                 }
@@ -50,9 +62,9 @@ public class JsInvokeHandler {
                 mNativeDisposeSet.put(methodAnnotation.value(), new Pair<>(method, paramKeyList));
             }
         }
-        for (String key : mNativeDisposeSet.keySet()) {
-            Log.d("jsHandleMethod", key + ":" + Arrays.toString(mNativeDisposeSet.get(key).second.toArray()));
-        }
+//        for (String key : mNativeDisposeSet.keySet()) {
+//            Log.d("jsHandleMethod", key + ":" + Arrays.toString(mNativeDisposeSet.get(key).second.toArray()));
+//        }
     }
 
     @JavascriptInterface
@@ -63,22 +75,28 @@ public class JsInvokeHandler {
         List<String> paramList = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(params);
-            for (String key : paramKeyList) {
-                paramList.add(jsonObject.getString(key));
+            Object result;
+            if (paramKeyList == null) {
+                result = nativeCallee.invoke(mTarget, params);
+            } else {
+                for (String key : paramKeyList) {
+                    paramList.add(jsonObject.getString(key));
+                }
+                result = nativeCallee.invoke(mTarget, paramList.toArray());
             }
-            Object result = nativeCallee.invoke(mTarget, paramList.toArray());
+
             if (result != null && !(result instanceof NativeResult)) {
                 Log.e(TAG, String.format("error: native callee method %s's return type is %s.It's must be %s or void", nativeCallee.getName(), result == null ? "void" : result.getClass(), NativeResult.class));
                 return;
             }
-            if(result == null)
+            if (result == null)
                 return;
             NativeResult nativeResult = (NativeResult) result;
             //javascript callback called
             String jsCmd;
             if (!TextUtils.isEmpty(nativeResult.result())) {
-                jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d, \"%s\");", id, nativeResult.result().replaceAll("\"","\\\\\""));
-            }else {
+                jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d, \"%s\");", id, nativeResult.result().replaceAll("\"", "\\\\\""));
+            } else {
                 jsCmd = String.format(Locale.getDefault(), "window.nativeCall(%d);", id);
             }
             //post execute to main thread

@@ -4,7 +4,10 @@
             <button type="button" onclick="jsCallNative()">javascript call native</button>
         </p>
         <p>
-            <button type="button" onclick="jsCallNativeWithCallback()">javascript call native with callback</button>
+            <button type="button" onclick="jsCallNativeThenCallback()">javascript call native with callback</button>
+        </p>
+        <p>
+            <button type="button" onclick="jsCallNativeThenCallbackWithoutParam()">javascript call native with callback and no params</button>
         </p>
         <p>webView:</p>
         <p id="text"></p>
@@ -12,15 +15,22 @@
 
     <script>
         function jsCallNative(){
+            document.getElementById("text").innerHTML = "";
             window.callNative("nativeMethod1", JSON.parse('{"name":"Tom","gender":"male"}'));
         }
-        function jsCallNativeWithCallback(){
-            document.getElementById("text").innerHTML = "called";
+        function jsCallNativeThenCallback(){
+            document.getElementById("text").innerHTML = "";
             window.callNative("nativeMethod2",JSON.parse('{"name":"Sam","gender":"male"}'), function(params){
                 //console.log(JSON.stringify(params));
                 //console.log(params.grade);
                 //console.log("callback");
                 document.getElementById("text").innerHTML = JSON.stringify(params);
+            });
+        }
+        function jsCallNativeThenCallbackWithoutParam(){
+            document.getElementById("text").innerHTML = "";
+            window.callNative("nativeMethod3",JSON.parse('{"name":"Sam","gender":"male"}'), function(){
+                document.getElementById("text").innerHTML = JSON.stringify("callback called");
             });
         }
     </script>

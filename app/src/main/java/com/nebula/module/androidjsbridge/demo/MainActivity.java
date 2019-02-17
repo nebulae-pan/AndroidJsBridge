@@ -2,7 +2,6 @@ package com.nebula.module.androidjsbridge.demo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -11,6 +10,7 @@ import android.widget.TextView;
 import com.nebula.module.androidjsbridge.InjectWebViewClient;
 import com.nebula.module.androidjsbridge.JsInvoke;
 import com.nebula.module.androidjsbridge.JsParam;
+import com.nebula.module.androidjsbridge.JsParamValue;
 import com.nebula.module.androidjsbridge.NativeResult;
 
 import org.json.JSONException;
@@ -39,18 +39,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JsInvoke("nativeMethod1")
-    public void method1(@JsParam("name") String name,
-                        @JsParam("gender") String gender) {
+    public void method1(@JsParamValue("name") String name,
+                        @JsParamValue("gender") String gender) {
         mText.setText(String.format("name = \"%s\", gender = \"%s\"", name, gender));
     }
 
     @JsInvoke("nativeMethod2")
-    public NativeResult method2(@JsParam("name") String name) {
+    public NativeResult method2(@JsParamValue("name") String name) {
         mText.setText(String.format("name = \"%s\"", name));
         JsBuilder jsBuilder = new JsBuilder();
         jsBuilder.addParam("grade","90")
                 .addParam("location","xi'an");
         return new NativeResult(jsBuilder.string());
+    }
+
+    @JsInvoke("nativeMethod3")
+    public NativeResult method3(@JsParam String param){
+        mText.setText(param);
+        return new NativeResult();
     }
 
     public static class JsBuilder{
